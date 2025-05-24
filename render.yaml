@@ -6,6 +6,8 @@ services:
     repo: https://github.com/joyreyesdimaculangan/portfolio-laravel.git
     branch: main
     dockerfilePath: Dockerfile
+    ports:
+      - 8000
     envVars:
       - key: APP_ENV
         value: production
