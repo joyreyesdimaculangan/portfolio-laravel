@@ -1,11 +1,11 @@
 services:
   - type: web
     name: laravel-app
-    runtime: docker
+    env: docker
+    plan: free
     repo: https://github.com/joyreyesdimaculangan/portfolio-laravel.git
     branch: main
-    plan: free
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: Dockerfile
     envVars:
       - key: APP_ENV
         value: production
@@ -13,4 +13,5 @@ services:
         value: false
       - key: APP_KEY
         generateValue: true
-
+      - key: APP_URL
+        value: https://joy-dimaculangan.onrender.com
