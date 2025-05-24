@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libzip-dev \
     libpq-dev \
+    gnupg \
+    ca-certificates \
     && docker-php-ext-install \
         pdo \
         pdo_pgsql \
@@ -22,6 +24,11 @@ RUN apt-get update && apt-get install -y \
         zip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Install Node.js (v18) & npm
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get update && apt-get install -y nodejs \
+    && npm install -g npm@latest
+
 # Install Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
@@ -31,11 +38,14 @@ WORKDIR /var/www
 # Copy app files
 COPY . .
 
-# Make sure .env exists during build
+# Ensure .env exists during build
 RUN cp .env.example .env || touch .env
 
 # Install PHP dependencies, skip artisan post-install scripts during build
 RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+# Install frontend dependencies and build assets
+RUN npm install && npm run build
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www \
