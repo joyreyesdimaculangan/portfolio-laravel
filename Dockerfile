@@ -11,14 +11,14 @@ COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Copy Laravel project files
+# Copy app files
 COPY . .
 
-# Copy env example to prevent early artisan failures
-RUN cp .env.example .env || true
+# Make sure .env exists during build
+RUN cp .env.example .env || touch .env
 
-# Install PHP dependencies, skip artisan for now
-RUN composer install --no-dev --optimize-autoloader || true
+# Install PHP dependencies, but skip artisan during build
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www \
@@ -26,7 +26,7 @@ RUN chown -R www-data:www-data /var/www \
 
 EXPOSE 8000
 
-# Run artisan setup only when container starts (not during build)
+# Run artisan setup at container startup
 CMD php artisan key:generate && \
     php artisan migrate --force && \
     php artisan config:cache && \
