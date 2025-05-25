@@ -28,6 +28,9 @@ RUN apt-get update && apt-get install -y \
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get update && apt-get install -y nodejs
 
+# Install frontend dependencies and build assets
+RUN npm install && npm run build
+
 # Install Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
@@ -43,12 +46,9 @@ RUN cp .env.example .env || touch .env
 # Install PHP dependencies, skip artisan post-install scripts during build
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Install frontend dependencies and build assets
-RUN npm install && npm run build
-
 # Set permissions
 RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www/storage /var/www/bootstrap/cache
+    && chmod -R 755 /var/www/public
 
 EXPOSE 8000
 
